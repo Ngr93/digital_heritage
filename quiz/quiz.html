@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Survive the Chicago Fire - Quiz</title>
+
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      max-width: 650px; 
+      margin: 40px auto; 
+      text-align: center;
+    }
+
+    h1 {
+      color: #d42e00;
+      font-size: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Fire animation */
+    .fire {
+      width: 45px;
+      height: 45px;
+      background-image: url('https://i.gifer.com/origin/72/72aa7e1e0b8beddeb18f0bc33bd4a14c_w200.gif');
+      background-size: cover;
+    }
+
+    #scoreBox {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .question-box { 
+      margin-bottom: 25px; 
+      padding: 20px; 
+      border: 1px solid #ddd; 
+      border-radius: 8px; 
+      background: #fafafa;
+    }
+
+    button { 
+      padding: 12px; 
+      margin: 8px 0; 
+      width: 100%; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      border: 1px solid #999; 
+      background: white;
+      font-size: 16px;
+    }
+
+    .correctBtn {
+      background: #d4edda; 
+      border-color: #6cc27f;
+    }
+
+    .wrongBtn {
+      background: #f8d7da; 
+      border-color: #e88a8a;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+
+    #nextBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #d42e00;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>
+  <div class="fire"></div>
+  Survive the Chicago Fire
+  <div class="fire"></div>
+</h1>
+
+<div id="scoreBox">Score: 0 / 5</div>
+
+<div id="quiz"></div>
+
+<div id="feedback"></div>
+
+<button id="nextBtn" onclick="nextQuestion()">Next Question</button>
+
+<script>
+const questions = [
+  {
+    question: "Where did the Great Chicago Fire begin?",
+    answers: [
+      "In Mrs. O’Leary’s barn",
+      "At City Hall",
+      "In the West Division lumber district",
+      "At the river docks"
+    ],
+    correct: 0,
+    explanation: "The fire famously started in the barn of the O’Leary family on October 8, 1871."
+  },
+  {
+    question: "What weather conditions made the fire uncontrollable?",
+    answers: [
+      "Heavy rain and lightning",
+      "Strong winds and extremely dry weather",
+      "Snowfall and freezing air",
+      "Calm, humid weather"
+    ],
+    correct: 1,
+    explanation: "Weeks of drought and strong winds spread flames rapidly across the city."
+  },
+  {
+    question: "Approximately how long did the Chicago Fire burn?",
+    answers: [
+      "6 hours",
+      "24 hours",
+      "36 hours",
+      "48 hours"
+    ],
+    correct: 2,
+    explanation: "The fire burned for about 36 hours before finally being controlled."
+  },
+  {
+    question: "How much of Chicago was destroyed?",
+    answers: [
+      "Only the downtown area",
+      "One small neighborhood",
+      "About one-third of the entire city",
+      "Almost nothing"
+    ],
+    correct: 2,
+    explanation: "Around one-third of Chicago was destroyed, including 17,000+ buildings."
+  },
+  {
+    question: "Why did the fire spread so quickly?",
+    answers: [
+      "Chicago had mostly wooden buildings",
+      "Firefighters refused to work",
+      "The city was flooded",
+      "The fire started from gunpowder"
+    ],
+    correct: 0,
+    explanation: "Most of Chicago’s buildings, sidewalks, and even roads were wood."
+  }
+];
+
+let score = 0;
+let questionIndex = 0;
+
+const quizDiv = document.getElementById("quiz");
+const scoreBox = document.getElementById("scoreBox");
+const feedbackDiv = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+
+function updateScore() {
+  scoreBox.textContent = `Score: ${score} / 5`;
+}
+
+function showQuestion() {
+  feedbackDiv.innerHTML = "";
+  nextBtn.style.display = "none";
+
+  quizDiv.innerHTML = "";
+
+  const q = questions[questionIndex];
+
+  const box = document.createElement("div");
+  box.className = "question-box";
+
+  const title = document.createElement("h3");
+  title.textContent = q.question;
+  box.appendChild(title);
+
+  q.answers.forEach((answer, idx) => {
+    const btn = document.createElement("button");
+    btn.textContent = answer;
+    btn.onclick = () => checkAnswer(idx, btn);
+    box.appendChild(btn);
+  });
+
+  quizDiv.appendChild(box);
+}
+
+function checkAnswer(selected, buttonElement) {
+  const q = questions[questionIndex];
+  const correct = q.correct;
+
+  // Disable all buttons after answering
+  const buttons = quizDiv.getElementsByTagName("button");
+  for (let b of buttons) b.disabled = true;
+
+  if (selected === correct) {
+    score++;
+    updateScore();
+    feedbackDiv.innerHTML = `<p style="color:green;"><b>Very good!</b> You survived this step! 🔥</p>`;
+    buttonElement.classList.add("correctBtn");
+  } else {
+    feedbackDiv.innerHTML = `
+      <p style="color:red;">
+        Incorrect! The correct answer is: <b>${q.answers[correct]}</b><br>
+        <i>${q.explanation}</i>
+      </p>
+    `;
+    buttonElement.classList.add("wrongBtn");
+  }
+
+  nextBtn.style.display = "inline-block";
+}
+
+function nextQuestion() {
+  questionIndex++;
+
+  if (questionIndex < questions.length) {
+    showQuestion();
+  } else {
+    quizDiv.innerHTML = "";
+    nextBtn.style.display = "none";
+    feedbackDiv.innerHTML = "<b>You finished the quiz! 🔥</b>";
+  }
+}
+
+updateScore();
+showQuestion();
+</script>
+
+</body>
+</html>
