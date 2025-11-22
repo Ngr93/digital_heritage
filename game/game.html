@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Escape the Great Chicago Fire</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #2b2f3a 0%, #05060a 70%);
+      color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #game-container {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 1.5rem;
+      width: 95vw;
+      max-width: 1200px;
+      padding: 1.5rem;
+      background: rgba(10, 10, 20, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      background: #000;
+      display: block;
+    }
+
+    #ui {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 span {
+      color: #ffb347;
+    }
+
+    #subtitle {
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: #d0d0e0;
+      margin-bottom: 1rem;
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .hud span {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #status {
+      font-weight: 600;
+      color: #ffb347;
+    }
+
+    #instructions {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #c7c7dd;
+      margin-bottom: 1.2rem;
+    }
+
+    #instructions strong {
+      color: #ffb347;
+    }
+
+    #restartBtn {
+      align-self: flex-start;
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ff7a18, #af002d 70%);
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    #restartBtn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    #restartBtn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    #note {
+      font-size: 0.85rem;
+      opacity: 0.8;
+      margin-top: 0.8rem;
+    }
+
+    /* Popup */
+    #popup {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+    }
+
+    #popup-inner {
+      background: #151520;
+      border-radius: 18px;
+      padding: 1.4rem 1.6rem;
+      max-width: 420px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    #popup-inner h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+      color: #ffb347;
+    }
+
+    #popup-inner p {
+      font-size: 0.9rem;
+      color: #e4e4f0;
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+
+    #popup-close {
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: #ffb347;
+      color: #151520;
+    }
+
+    @media (max-width: 800px) {
+      #game-container {
+        grid-template-columns: 1fr;
+      }
+      #ui {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui">
+      <div>
+        <h1>Escape the <span>Great Chicago Fire</span></h1>
+        <p id="subtitle">
+          Start on the west side of Chicago, where the fire begins. Travel through the
+          streets and reach the green safe zone on the right before the flames catch you.
+        </p>
+
+        <div class="hud">
+          <span>Level: <span id="level">1</span></span>
+          <span>Time: <span id="time">0.0</span>s</span>
+          <span>Status: <span id="status">You have a few seconds to plan…</span></span>
+        </div>
+
+        <div id="instructions">
+          <p><strong>Goal:</strong> Move from the left side to the green safe zone on the right.</p>
+          <p><strong>Controls:</strong> Arrow keys or W / A / S / D → one step per key press.</p>
+          <p>🔥 After a short calm period, the fire front appears on the left and moves to the right.</p>
+          <p>⭐ On your path, step on glowing icons to see short historical facts about the fire.</p>
+        </div>
+      </div>
+
+      <div>
+        <button id="restartBtn">Restart / New Maze</button>
+        <p id="note">
+          Files needed in the same folder: <code>chicago_map.jpg</code>, <code>citizen.gif</code>,
+          <code>landmark1.gif</code>, <code>landmark2.gif</code>, <code>landmark3.gif</code>, and optionally <code>fire.mp3</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical popup -->
+  <div id="popup">
+    <div id="popup-inner">
+      <h2 id="popup-title"></h2>
+      <p id="popup-text"></p>
+      <button id="popup-close">Continue</button>
+    </div>
+  </div>
+
+  <!-- Optional fire sound -->
+  <audio id="fireSound" src="fire.mp3" loop></audio>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    // Background map
+    const bgImage = new Image();
+    bgImage.src = "chicago_map.jpg";
+    let bgLoaded = false;
+    bgImage.onload = () => bgLoaded = true;
+
+    // Player sprite (running man)
+    const citizenImg = new Image();
+    citizenImg.src = "citizen.gif";
+    let citizenLoaded = false;
+    citizenImg.onload = () => citizenLoaded = true;
+
+    // Landmark sprites (3 different icons)
+    const landmarkSources = ["landmark1.gif", "landmark2.gif", "landmark3.gif"];
+    const landmarkImages = [];
+    for (let i = 0; i < landmarkSources.length; i++) {
+      const img = new Image();
+      img.src = landmarkSources[i];
+      landmarkImages.push(img);
+    }
+
+    // Fire sound
+    const fireSound = document.getElementById("fireSound");
+    let soundStarted = false;
+    function startSound() {
+      if (soundStarted) return;
+      soundStarted = true;
+      fireSound.play().catch(() => {});
+    }
+
+    // Popup
+    const popup = document.getElementById("popup");
+    const popupTitle = document.getElementById("popup-title");
+    const popupText = document.getElementById("popup-text");
+    const popupClose = document.getElementById("popup-close");
+    let popupOpen = false;
+
+    popupClose.addEventListener("click", () => {
+      popup.style.display = "none";
+      popupOpen = false;
+    });
+
+    // UI elements
+    const levelSpan = document.getElementById("level");
+    const timeSpan = document.getElementById("time");
+    const statusSpan = document.getElementById("status");
+    const restartBtn = document.getElementById("restartBtn");
+
+    // Game parameters/state
+    const GRACE_TIME = 8;   // seconds before fire starts moving
+    let rows, cols;
+    let maze;
+    let fireDistances;
+    let fireProgress;
+    let player;
+    let level = 1;
+    let gameTime = 0;
+    let gameOver = false;
+    let animationTime = 0;
+    let landmarks = [];
+
+    const DIRS = [
+      { dx: 0, dy: -1, wall: "top",    opposite: "bottom" },
+      { dx: 1, dy: 0,  wall: "right",  opposite: "left"   },
+      { dx: 0, dy: 1,  wall: "bottom", opposite: "top"    },
+      { dx: -1,dy: 0,  wall: "left",   opposite: "right"  }
+    ];
+
+    const historicalSpots = [
+      {
+        title: "Fire Spreads",
+        text: "The fire grew rapidly from the west side."
+      },
+      {
+        title: "The Lantern",
+        text: "A lantern was blamed, though never proven."
+      },
+      {
+        title: "Escape Route",
+        text: "Survivors fled toward the north side."
+      }
+    ];
+
+    function inBounds(x, y) {
+      return y >= 0 && y < rows && x >= 0 && x < cols;
+    }
+
+    function createEmptyMaze(r, c) {
+      const grid = [];
+      for (let y = 0; y < r; y++) {
+        const row = [];
+        for (let x = 0; x < c; x++) {
+          row.push({
+            x,
+            y,
+            top: true,
+            right: true,
+            bottom: true,
+            left: true,
+            visited: false
+          });
+        }
+        grid.push(row);
+      }
+      return grid;
+    }
+
+    function generateMaze() {
+      maze = createEmptyMaze(rows, cols);
+      const stack = [];
+      const start = maze[0][0];
+      start.visited = true;
+      stack.push(start);
+
+      while (stack.length > 0) {
+        const current = stack[stack.length - 1];
+        const neighbors = [];
+
+        for (const dir of DIRS) {
+          const nx = current.x + dir.dx;
+          const ny = current.y + dir.dy;
+          if (inBounds(nx, ny) && !maze[ny][nx].visited) {
+            neighbors.push({ cell: maze[ny][nx], dir });
+          }
+        }
+
+        if (neighbors.length === 0) {
+          stack.pop();
+        } else {
+          const { cell: next, dir } = neighbors[Math.floor(Math.random() * neighbors.length)];
+          current[dir.wall] = false;
+          next[dir.opposite] = false;
+          next.visited = true;
+          stack.push(next);
+        }
+      }
+    }
+
+    function computeFireDistances() {
+      fireDistances = [];
+      for (let y = 0; y < rows; y++) {
+        const row = new Array(cols).fill(Infinity);
+        fireDistances.push(row);
+      }
+
+      const queue = [];
+      for (let y = 0; y < rows; y++) {
+        fireDistances[y][0] = 0;
+        queue.push(maze[y][0]);
+      }
+
+      while (queue.length > 0) {
+        const cell = queue.shift();
+        const d = fireDistances[cell.y][cell.x];
+
+        if (!cell.top && inBounds(cell.x, cell.y - 1) &&
+            fireDistances[cell.y - 1][cell.x] > d + 1) {
+          fireDistances[cell.y - 1][cell.x] = d + 1;
+          queue.push(maze[cell.y - 1][cell.x]);
+        }
+        if (!cell.right && inBounds(cell.x + 1, cell.y) &&
+            fireDistances[cell.y][cell.x + 1] > d + 1) {
+          fireDistances[cell.y][cell.x + 1] = d + 1;
+          queue.push(maze[cell.y][cell.x + 1]);
+        }
+        if (!cell.bottom && inBounds(cell.x, cell.y + 1) &&
+            fireDistances[cell.y + 1][cell.x] > d + 1) {
+          fireDistances[cell.y + 1][cell.x] = d + 1;
+          queue.push(maze[cell.y + 1][cell.x]);
+        }
+        if (!cell.left && inBounds(cell.x - 1, cell.y) &&
+            fireDistances[cell.y][cell.x - 1] > d + 1) {
+          fireDistances[cell.y][cell.x - 1] = d + 1;
+          queue.push(maze[cell.y][cell.x - 1]);
+        }
+      }
+    }
+
+    function placeLandmarks() {
+      landmarks = [];
+      const count = Math.min(3, historicalSpots.length, landmarkImages.length);
+      for (let i = 0; i < count; i++) {
+        const info = historicalSpots[i];
+        const img = landmarkImages[i];
+
+        const targetCol = Math.floor(cols * (i + 1) / (count + 1));
+        let x, y, key;
+        const used = new Set();
+
+        do {
+          x = targetCol;
+          y = Math.floor(Math.random() * rows);
+          key = `${x},${y}`;
+        } while (key === "0,0" || x === cols - 1 || used.has(key));
+
+        used.add(key);
+        landmarks.push({
+          x,
+          y,
+          image: img,
+          title: info.title,
+          text: info.text,
+          visited: false
+        });
+      }
+    }
+
+    function resetPlayerAndFire() {
+      player = { x: 0, y: 0 };
+      fireProgress = -999; // hidden until GRACE_TIME passes
+      gameTime = 0;
+      gameOver = false;
+      animationTime = 0;
+      popupOpen = false;
+      statusSpan.textContent = "You have a few seconds to plan…";
+      statusSpan.style.color = "#ffb347";
+    }
+
+    function setupLevel(lv) {
+      level = lv;
+      levelSpan.textContent = String(level);
+      rows = 10 + level * 2;
+      cols = 16 + level * 2;
+      generateMaze();
+      computeFireDistances();
+      placeLandmarks();
+      resetPlayerAndFire();
+    }
+
+    // --- INPUT: one step per key press ---
+    function handleKeyPress(key) {
+      if (gameOver || popupOpen) return;
+
+      let dx = 0, dy = 0;
+      if (key === "ArrowUp" || key === "w") dy = -1;
+      else if (key === "ArrowDown" || key === "s") dy = 1;
+      else if (key === "ArrowLeft" || key === "a") dx = -1;
+      else if (key === "ArrowRight" || key === "d") dx = 1;
+      else return;
+
+      startSound();
+      tryMove(dx, dy);
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.repeat) return;
+      handleKeyPress(e.key);
+      if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","a","s","d"].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    function tryMove(dx, dy) {
+      const cell = maze[player.y][player.x];
+
+      if (dy === -1 && !cell.top && inBounds(cell.x, cell.y - 1)) {
+        player.y -= 1;
+      } else if (dy === 1 && !cell.bottom && inBounds(cell.x, cell.y + 1)) {
+        player.y += 1;
+      } else if (dx === -1 && !cell.left && inBounds(cell.x - 1, cell.y)) {
+        player.x -= 1;
+      } else if (dx === 1 && !cell.right && inBounds(cell.x + 1, cell.y)) {
+        player.x += 1;
+      }
+
+      // Landmark trigger
+      const spot = landmarks.find(s => !s.visited && s.x === player.x && s.y === player.y);
+      if (spot) {
+        spot.visited = true;
+        popupTitle.textContent = spot.title;
+        popupText.textContent = spot.text;
+        popup.style.display = "flex";
+        popupOpen = true;
+      }
+    }
+
+    // --- Drawing functions ---
+
+    function drawFireLayer(offsetX, offsetY, cellSize) {
+      if (fireProgress < 0) return;
+      const effectiveProgress = Math.max(0, fireProgress);
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const dist = fireDistances[y][x];
+          if (dist === Infinity) continue;
+
+          const diff = dist - effectiveProgress;
+          const flicker = 0.5 + 0.5 * Math.sin(animationTime * 8 + x * 0.7 + y * 0.3);
+
+          if (diff >= -1 && diff <= 2) {
+            const alpha = 0.25 + 0.25 * flicker;
+            const r = 255;
+            const g = Math.floor(80 + 80 * flicker);
+            ctx.fillStyle = `rgba(${r},${g},0,${alpha})`;
+            ctx.fillRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
+          } else if (diff > 2 && diff <= 5) {
+            const alpha = 0.05 + 0.05 * flicker;
+            ctx.fillStyle = `rgba(255,60,0,${alpha})`;
+            ctx.fillRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
+          } else if (diff < -1) {
+            ctx.fillStyle = "rgba(30,10,5,0.6)";
+            ctx.fillRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    }
+
+    function drawMazeWalls(offsetX, offsetY, cellSize) {
+      ctx.strokeStyle = "rgba(240, 240, 255, 0.9)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const cell = maze[y][x];
+          const x0 = offsetX + x * cellSize;
+          const y0 = offsetY + y * cellSize;
+          const x1 = x0 + cellSize;
+          const y1 = y0 + cellSize;
+
+          if (cell.top) {
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y0);
+          }
+          if (cell.right) {
+            ctx.moveTo(x1, y0);
+            ctx.lineTo(x1, y1);
+          }
+          if (cell.bottom) {
+            ctx.moveTo(x0, y1);
+            ctx.lineTo(x1, y1);
+          }
+          if (cell.left) {
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0, y1);
+          }
+        }
+      }
+
+      ctx.stroke();
+    }
+
+    function drawLandmarks(offsetX, offsetY, cellSize) {
+      landmarks.forEach(spot => {
+        const cx = offsetX + (spot.x + 0.5) * cellSize;
+        const cy = offsetY + (spot.y + 0.5) * cellSize;
+
+        // glow
+        ctx.beginPath();
+        const rGlow = cellSize * 0.6; // larger glow
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rGlow);
+        grad.addColorStop(0, "rgba(255, 215, 120, 0.7)");
+        grad.addColorStop(1, "rgba(255, 215, 120, 0)");
+        ctx.fillStyle = grad;
+        ctx.arc(cx, cy, rGlow, 0, Math.PI * 2);
+        ctx.fill();
+
+        // big icon
+        const img = spot.image;
+        const size = cellSize * 0.9; // LARGE icon
+        if (img.complete) {
+          ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+        } else {
+          img.onload = () => {
+            ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+          };
+        }
+      });
+    }
+
+    function drawPlayer(offsetX, offsetY, cellSize) {
+      const px = offsetX + (player.x + 0.5) * cellSize;
+      const py = offsetY + (player.y + 0.5) * cellSize;
+      const size = cellSize * 0.9; // LARGE player icon
+
+      if (citizenLoaded) {
+        ctx.drawImage(citizenImg, px - size / 2, py - size / 2, size, size);
+      } else {
+        ctx.beginPath();
+        ctx.arc(px, py, cellSize * 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = "#64b5ff";
+        ctx.fill();
+      }
+    }
+
+    function draw() {
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Background map
+      if (bgLoaded) {
+        const imgRatio = bgImage.width / bgImage.height;
+        const canvasRatio = width / height;
+        let drawWidth, drawHeight, dx, dy;
+        if (imgRatio > canvasRatio) {
+          drawHeight = height;
+          drawWidth = imgRatio * drawHeight;
+        } else {
+          drawWidth = width;
+          drawHeight = drawWidth / imgRatio;
+        }
+        dx = (width - drawWidth) / 2;
+        dy = (height - drawHeight) / 2;
+
+        ctx.globalAlpha = 0.65;
+        ctx.drawImage(bgImage, dx, dy, drawWidth, drawHeight);
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.fillStyle = "#111";
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      const cellWidth = width / cols;
+      const cellHeight = height / rows;
+      const cellSize = Math.min(cellWidth, cellHeight);
+      const offsetX = (width - cellSize * cols) / 2;
+      const offsetY = (height - cellSize * rows) / 2;
+
+      // dark overlay
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(offsetX, offsetY, cellSize * cols, cellSize * rows);
+
+      // fire, maze, safe zone, landmarks, player
+      drawFireLayer(offsetX, offsetY, cellSize);
+      drawMazeWalls(offsetX, offsetY, cellSize);
+
+      // safe green band on the right
+      ctx.fillStyle = "rgba(0, 255, 100, 0.25)";
+      ctx.fillRect(
+        offsetX + (cols - 1) * cellSize,
+        offsetY,
+        cellSize,
+        cellSize * rows
+      );
+
+      drawLandmarks(offsetX, offsetY, cellSize);
+      drawPlayer(offsetX, offsetY, cellSize);
+    }
+
+    let lastTime = null;
+
+    function update(dt) {
+      if (gameOver || popupOpen) return;
+
+      gameTime += dt;
+      animationTime += dt;
+      timeSpan.textContent = gameTime.toFixed(1);
+
+      // Fire movement
+      const fireSpeed = 0.25 + level * 0.1;
+      if (gameTime > GRACE_TIME) {
+        if (fireProgress < 0) fireProgress = 0;
+        fireProgress += fireSpeed * dt;
+        statusSpan.textContent = "The fire is advancing through the city!";
+      }
+
+      // Lose condition
+      const distHere = fireDistances[player.y][player.x];
+      if (gameTime > GRACE_TIME && distHere <= fireProgress - 0.5) {
+        gameOver = true;
+        statusSpan.textContent = "Caught by the fire!";
+        statusSpan.style.color = "#ff6b6b";
+      }
+
+      // Win condition: reach last column (green area)
+      if (!gameOver && player.x === cols - 1) {
+        gameOver = true;
+        statusSpan.textContent = "You escaped to the safe zone!";
+        statusSpan.style.color = "#7cf59b";
+        setTimeout(() => {
+          setupLevel(level + 1);
+        }, 1500);
+      }
+    }
+
+    function loop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      update(dt);
+      draw();
+
+      requestAnimationFrame(loop);
+    }
+
+    restartBtn.addEventListener("click", () => {
+      setupLevel(level);
+      startSound();
+    });
+
+    // Start game
+    setupLevel(1);
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
