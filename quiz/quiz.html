@@ -21,7 +21,6 @@
       gap: 12px;
     }
 
-    /* Fire animation */
     .fire {
       width: 45px;
       height: 45px;
@@ -32,7 +31,6 @@
     #scoreBox {
       font-size: 18px;
       margin-bottom: 20px;
-      color: #333;
       font-weight: bold;
     }
 
@@ -86,157 +84,150 @@
 
 <body>
 
-  <h1>
-    <div class="fire"></div>
-    Survive the Chicago Fire
-    <div class="fire"></div>
-  </h1>
+<h1>
+  <div class="fire"></div>
+  Survive the Chicago Fire
+  <div class="fire"></div>
+</h1>
 
-  <div id="scoreBox">Score: 0 / 5</div>
-  <div id="quiz"></div>
-  <div id="feedback"></div>
+<div id="scoreBox">Score: 0 / 5</div>
+<div id="quiz"></div>
+<div id="feedback"></div>
 
-  <button id="nextBtn" onclick="nextQuestion()">Next Question</button>
+<button id="nextBtn" onclick="nextQuestion()">Next Question</button>
 
-  <script>
-    // ✅ UPDATED QUESTIONS (Aligned with your StoryMap content)
-    const questions = [
-      {
-        question: "Which post-fire change most improved fire safety in Chicago’s rebuilding phase?",
-        answers: [
-          "Stricter building regulations and increased use of fire-resistant materials",
-          "Replacing all streets with wooden sidewalks again",
-          "Moving the entire city center outside the Loop",
-          "Stopping all construction for 10 years"
-        ],
-        correct: 0,
-        explanation: "After the fire, rebuilding encouraged stricter rules and more fire-resistant construction to reduce future risk."
-      },
-      {
-        question: "Why is the Chicago River shown as a key environmental issue after the fire?",
-        answers: [
-          "It became unusable because it dried up completely",
-          "It was mainly used for clean drinking water without problems",
-          "It was a major pollution channel due to waste and sewage impacts",
-          "It was permanently closed to transportation and trade"
-        ],
-        correct: 2,
-        explanation: "The river is highlighted as an environmental challenge because pollution and waste management strongly affected public health."
-      },
-      {
-        question: "What does the decrease in typhoid deaths over time mainly indicate in your Environment section?",
-        answers: [
-          "The success of improved sanitation and water management",
-          "A sudden climate shift that removed diseases",
-          "A ban on immigration into Chicago",
-          "The fire eliminated all bacteria permanently"
-        ],
-        correct: 0,
-        explanation: "Falling typhoid deaths are evidence of better sanitation systems and healthier urban infrastructure over time."
-      },
-      {
-        question: "What is the main purpose of including the flipbook/comic element in the StoryMap?",
-        answers: [
-          "To replace all historical sources with fiction",
-          "To explain key narratives (including myths and public perceptions) in an engaging format",
-          "To show building materials through engineering calculations",
-          "To present raw datasets without interpretation"
-        ],
-        correct: 1,
-        explanation: "The flipbook/comic supports storytelling by translating historical narratives and myths into an accessible, engaging format."
-      },
-      {
-        question: "Why does the StoryMap include a quiz/game section at the end?",
-        answers: [
-          "To collect users’ personal data for marketing",
-          "To test advanced programming skills only",
-          "To entertain without any connection to the content",
-          "To reinforce learning by checking understanding of the StoryMap’s key points"
-        ],
-        correct: 3,
-        explanation: "The quiz/game is an edutainment part: it helps users review and remember the main concepts from the StoryMap."
-      }
-    ];
+<script>
+const questions = [
+  {
+    question: "What was a key result of rebuilding Chicago after the 1871 fire?",
+    answers: [
+      "Stronger building rules and safer construction",
+      "Fewer people living in the city",
+      "The end of industrial growth"
+    ],
+    correct: 0,
+    explanation: "Rebuilding led to safer construction and stricter building regulations."
+  },
+  {
+    question: "Why did the Chicago River become an environmental problem after the fire?",
+    answers: [
+      "It was used to dispose waste and sewage",
+      "It dried out completely",
+      "It was closed to ships"
+    ],
+    correct: 0,
+    explanation: "Waste and sewage polluted the river, affecting public health."
+  },
+  {
+    question: "What mainly caused the decrease in typhoid deaths over time?",
+    answers: [
+      "Improved sanitation and clean water systems",
+      "Changes in climate",
+      "The fire destroyed all bacteria"
+    ],
+    correct: 0,
+    explanation: "Better sanitation systems reduced waterborne diseases."
+  },
+  {
+    question: "Why are myths about the Great Chicago Fire important to understand today?",
+    answers: [
+      "They shaped public opinion and social attitudes",
+      "They explain fire engineering methods",
+      "They show scientific evidence"
+    ],
+    correct: 0,
+    explanation: "Fire myths influenced how people blamed communities and understood the disaster."
+  },
+  {
+    question: "What is the main goal of including a quiz in this StoryMap?",
+    answers: [
+      "To test memory without learning",
+      "To reinforce understanding of the content",
+      "To replace historical sources"
+    ],
+    correct: 1,
+    explanation: "The quiz helps users review and understand the StoryMap content."
+  }
+];
 
-    let score = 0;
-    let questionIndex = 0;
+let score = 0;
+let questionIndex = 0;
 
-    const quizDiv = document.getElementById("quiz");
-    const scoreBox = document.getElementById("scoreBox");
-    const feedbackDiv = document.getElementById("feedback");
-    const nextBtn = document.getElementById("nextBtn");
+const quizDiv = document.getElementById("quiz");
+const scoreBox = document.getElementById("scoreBox");
+const feedbackDiv = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
 
-    function updateScore() {
-      scoreBox.textContent = `Score: ${score} / ${questions.length}`;
-    }
+function updateScore() {
+  scoreBox.textContent = `Score: ${score} / ${questions.length}`;
+}
 
-    function showQuestion() {
-      feedbackDiv.innerHTML = "";
-      nextBtn.style.display = "none";
-      quizDiv.innerHTML = "";
+function showQuestion() {
+  feedbackDiv.innerHTML = "";
+  nextBtn.style.display = "none";
+  quizDiv.innerHTML = "";
 
-      const q = questions[questionIndex];
+  const q = questions[questionIndex];
 
-      const box = document.createElement("div");
-      box.className = "question-box";
+  const box = document.createElement("div");
+  box.className = "question-box";
 
-      const title = document.createElement("h3");
-      title.textContent = q.question;
-      box.appendChild(title);
+  const title = document.createElement("h3");
+  title.textContent = q.question;
+  box.appendChild(title);
 
-      q.answers.forEach((answer, idx) => {
-        const btn = document.createElement("button");
-        btn.textContent = answer;
-        btn.onclick = () => checkAnswer(idx, btn);
-        box.appendChild(btn);
-      });
+  q.answers.forEach((answer, idx) => {
+    const btn = document.createElement("button");
+    btn.textContent = answer;
+    btn.onclick = () => checkAnswer(idx, btn);
+    box.appendChild(btn);
+  });
 
-      quizDiv.appendChild(box);
-    }
+  quizDiv.appendChild(box);
+}
 
-    function checkAnswer(selected, buttonElement) {
-      const q = questions[questionIndex];
-      const correctIndex = q.correct;
+function checkAnswer(selected, buttonElement) {
+  const q = questions[questionIndex];
+  const correct = q.correct;
 
-      // Disable all answer buttons after user clicks one
-      const buttons = quizDiv.getElementsByTagName("button");
-      for (let b of buttons) b.disabled = true;
+  const buttons = quizDiv.getElementsByTagName("button");
+  for (let b of buttons) b.disabled = true;
 
-      if (selected === correctIndex) {
-        score++;
-        updateScore();
-        feedbackDiv.innerHTML = `<p style="color:green;"><b>Very good!</b> You survived this step! 🔥</p>`;
-        buttonElement.classList.add("correctBtn");
-      } else {
-        feedbackDiv.innerHTML = `
-          <p style="color:red;">
-            Incorrect! The correct answer is: <b>${q.answers[correctIndex]}</b><br>
-            <i>${q.explanation}</i>
-          </p>
-        `;
-        buttonElement.classList.add("wrongBtn");
-      }
-
-      nextBtn.style.display = "inline-block";
-    }
-
-    function nextQuestion() {
-      questionIndex++;
-
-      if (questionIndex < questions.length) {
-        showQuestion();
-      } else {
-        quizDiv.innerHTML = "";
-        nextBtn.style.display = "none";
-        feedbackDiv.innerHTML = `<b>You finished the quiz! Final Score: ${score} / ${questions.length} 🔥</b>`;
-      }
-    }
-
-    // Start
+  if (selected === correct) {
+    score++;
     updateScore();
+    feedbackDiv.innerHTML = "<p style='color:green;'><b>Correct!</b> 🔥</p>";
+    buttonElement.classList.add("correctBtn");
+  } else {
+    feedbackDiv.innerHTML = `
+      <p style='color:red;'>
+        Wrong. Correct answer: <b>${q.answers[correct]}</b><br>
+        <i>${q.explanation}</i>
+      </p>
+    `;
+    buttonElement.classList.add("wrongBtn");
+  }
+
+  nextBtn.style.display = "inline-block";
+}
+
+function nextQuestion() {
+  questionIndex++;
+
+  if (questionIndex < questions.length) {
     showQuestion();
-  </script>
+  } else {
+    quizDiv.innerHTML = "";
+    nextBtn.style.display = "none";
+    feedbackDiv.innerHTML = `<b>Quiz finished! Final score: ${score} / ${questions.length} 🔥</b>`;
+  }
+}
+
+updateScore();
+showQuestion();
+</script>
 
 </body>
 </html>
+
 
