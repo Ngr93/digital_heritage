@@ -5,10 +5,10 @@
   <title>Survive the Chicago Fire - Quiz</title>
 
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      max-width: 650px; 
-      margin: 40px auto; 
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 650px;
+      margin: 40px auto;
       text-align: center;
     }
 
@@ -36,32 +36,32 @@
       font-weight: bold;
     }
 
-    .question-box { 
-      margin-bottom: 25px; 
-      padding: 20px; 
-      border: 1px solid #ddd; 
-      border-radius: 8px; 
+    .question-box {
+      margin-bottom: 25px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
       background: #fafafa;
     }
 
-    button { 
-      padding: 12px; 
-      margin: 8px 0; 
-      width: 100%; 
-      border-radius: 6px; 
-      cursor: pointer; 
-      border: 1px solid #999; 
+    button {
+      padding: 12px;
+      margin: 8px 0;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #999;
       background: white;
       font-size: 16px;
     }
 
     .correctBtn {
-      background: #d4edda; 
+      background: #d4edda;
       border-color: #6cc27f;
     }
 
     .wrongBtn {
-      background: #f8d7da; 
+      background: #f8d7da;
       border-color: #e88a8a;
     }
 
@@ -81,162 +81,162 @@
       cursor: pointer;
       display: none;
     }
-
   </style>
 </head>
+
 <body>
 
-<h1>
-  <div class="fire"></div>
-  Survive the Chicago Fire
-  <div class="fire"></div>
-</h1>
+  <h1>
+    <div class="fire"></div>
+    Survive the Chicago Fire
+    <div class="fire"></div>
+  </h1>
 
-<div id="scoreBox">Score: 0 / 5</div>
+  <div id="scoreBox">Score: 0 / 5</div>
+  <div id="quiz"></div>
+  <div id="feedback"></div>
 
-<div id="quiz"></div>
+  <button id="nextBtn" onclick="nextQuestion()">Next Question</button>
 
-<div id="feedback"></div>
+  <script>
+    // ✅ UPDATED QUESTIONS (Aligned with your StoryMap content)
+    const questions = [
+      {
+        question: "Which post-fire change most improved fire safety in Chicago’s rebuilding phase?",
+        answers: [
+          "Stricter building regulations and increased use of fire-resistant materials",
+          "Replacing all streets with wooden sidewalks again",
+          "Moving the entire city center outside the Loop",
+          "Stopping all construction for 10 years"
+        ],
+        correct: 0,
+        explanation: "After the fire, rebuilding encouraged stricter rules and more fire-resistant construction to reduce future risk."
+      },
+      {
+        question: "Why is the Chicago River shown as a key environmental issue after the fire?",
+        answers: [
+          "It became unusable because it dried up completely",
+          "It was mainly used for clean drinking water without problems",
+          "It was a major pollution channel due to waste and sewage impacts",
+          "It was permanently closed to transportation and trade"
+        ],
+        correct: 2,
+        explanation: "The river is highlighted as an environmental challenge because pollution and waste management strongly affected public health."
+      },
+      {
+        question: "What does the decrease in typhoid deaths over time mainly indicate in your Environment section?",
+        answers: [
+          "The success of improved sanitation and water management",
+          "A sudden climate shift that removed diseases",
+          "A ban on immigration into Chicago",
+          "The fire eliminated all bacteria permanently"
+        ],
+        correct: 0,
+        explanation: "Falling typhoid deaths are evidence of better sanitation systems and healthier urban infrastructure over time."
+      },
+      {
+        question: "What is the main purpose of including the flipbook/comic element in the StoryMap?",
+        answers: [
+          "To replace all historical sources with fiction",
+          "To explain key narratives (including myths and public perceptions) in an engaging format",
+          "To show building materials through engineering calculations",
+          "To present raw datasets without interpretation"
+        ],
+        correct: 1,
+        explanation: "The flipbook/comic supports storytelling by translating historical narratives and myths into an accessible, engaging format."
+      },
+      {
+        question: "Why does the StoryMap include a quiz/game section at the end?",
+        answers: [
+          "To collect users’ personal data for marketing",
+          "To test advanced programming skills only",
+          "To entertain without any connection to the content",
+          "To reinforce learning by checking understanding of the StoryMap’s key points"
+        ],
+        correct: 3,
+        explanation: "The quiz/game is an edutainment part: it helps users review and remember the main concepts from the StoryMap."
+      }
+    ];
 
-<button id="nextBtn" onclick="nextQuestion()">Next Question</button>
+    let score = 0;
+    let questionIndex = 0;
 
-<script>
-const questions = [
-  {
-    question: "Where did the Great Chicago Fire begin?",
-    answers: [
-      "In Mrs. O’Leary’s barn",
-      "At City Hall",
-      "In the West Division lumber district",
-      "At the river docks"
-    ],
-    correct: 0,
-    explanation: "The fire famously started in the barn of the O’Leary family on October 8, 1871."
-  },
-  {
-    question: "What weather conditions made the fire uncontrollable?",
-    answers: [
-      "Heavy rain and lightning",
-      "Strong winds and extremely dry weather",
-      "Snowfall and freezing air",
-      "Calm, humid weather"
-    ],
-    correct: 1,
-    explanation: "Weeks of drought and strong winds spread flames rapidly across the city."
-  },
-  {
-    question: "Approximately how long did the Chicago Fire burn?",
-    answers: [
-      "6 hours",
-      "24 hours",
-      "36 hours",
-      "48 hours"
-    ],
-    correct: 2,
-    explanation: "The fire burned for about 36 hours before finally being controlled."
-  },
-  {
-    question: "How much of Chicago was destroyed?",
-    answers: [
-      "Only the downtown area",
-      "One small neighborhood",
-      "About one-third of the entire city",
-      "Almost nothing"
-    ],
-    correct: 2,
-    explanation: "Around one-third of Chicago was destroyed, including 17,000+ buildings."
-  },
-  {
-    question: "Why did the fire spread so quickly?",
-    answers: [
-      "Chicago had mostly wooden buildings",
-      "Firefighters refused to work",
-      "The city was flooded",
-      "The fire started from gunpowder"
-    ],
-    correct: 0,
-    explanation: "Most of Chicago’s buildings, sidewalks, and even roads were wood."
-  }
-];
+    const quizDiv = document.getElementById("quiz");
+    const scoreBox = document.getElementById("scoreBox");
+    const feedbackDiv = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
 
-let score = 0;
-let questionIndex = 0;
+    function updateScore() {
+      scoreBox.textContent = `Score: ${score} / ${questions.length}`;
+    }
 
-const quizDiv = document.getElementById("quiz");
-const scoreBox = document.getElementById("scoreBox");
-const feedbackDiv = document.getElementById("feedback");
-const nextBtn = document.getElementById("nextBtn");
+    function showQuestion() {
+      feedbackDiv.innerHTML = "";
+      nextBtn.style.display = "none";
+      quizDiv.innerHTML = "";
 
-function updateScore() {
-  scoreBox.textContent = `Score: ${score} / 5`;
-}
+      const q = questions[questionIndex];
 
-function showQuestion() {
-  feedbackDiv.innerHTML = "";
-  nextBtn.style.display = "none";
+      const box = document.createElement("div");
+      box.className = "question-box";
 
-  quizDiv.innerHTML = "";
+      const title = document.createElement("h3");
+      title.textContent = q.question;
+      box.appendChild(title);
 
-  const q = questions[questionIndex];
+      q.answers.forEach((answer, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = answer;
+        btn.onclick = () => checkAnswer(idx, btn);
+        box.appendChild(btn);
+      });
 
-  const box = document.createElement("div");
-  box.className = "question-box";
+      quizDiv.appendChild(box);
+    }
 
-  const title = document.createElement("h3");
-  title.textContent = q.question;
-  box.appendChild(title);
+    function checkAnswer(selected, buttonElement) {
+      const q = questions[questionIndex];
+      const correctIndex = q.correct;
 
-  q.answers.forEach((answer, idx) => {
-    const btn = document.createElement("button");
-    btn.textContent = answer;
-    btn.onclick = () => checkAnswer(idx, btn);
-    box.appendChild(btn);
-  });
+      // Disable all answer buttons after user clicks one
+      const buttons = quizDiv.getElementsByTagName("button");
+      for (let b of buttons) b.disabled = true;
 
-  quizDiv.appendChild(box);
-}
+      if (selected === correctIndex) {
+        score++;
+        updateScore();
+        feedbackDiv.innerHTML = `<p style="color:green;"><b>Very good!</b> You survived this step! 🔥</p>`;
+        buttonElement.classList.add("correctBtn");
+      } else {
+        feedbackDiv.innerHTML = `
+          <p style="color:red;">
+            Incorrect! The correct answer is: <b>${q.answers[correctIndex]}</b><br>
+            <i>${q.explanation}</i>
+          </p>
+        `;
+        buttonElement.classList.add("wrongBtn");
+      }
 
-function checkAnswer(selected, buttonElement) {
-  const q = questions[questionIndex];
-  const correct = q.correct;
+      nextBtn.style.display = "inline-block";
+    }
 
-  // Disable all buttons after answering
-  const buttons = quizDiv.getElementsByTagName("button");
-  for (let b of buttons) b.disabled = true;
+    function nextQuestion() {
+      questionIndex++;
 
-  if (selected === correct) {
-    score++;
+      if (questionIndex < questions.length) {
+        showQuestion();
+      } else {
+        quizDiv.innerHTML = "";
+        nextBtn.style.display = "none";
+        feedbackDiv.innerHTML = `<b>You finished the quiz! Final Score: ${score} / ${questions.length} 🔥</b>`;
+      }
+    }
+
+    // Start
     updateScore();
-    feedbackDiv.innerHTML = `<p style="color:green;"><b>Very good!</b> You survived this step! 🔥</p>`;
-    buttonElement.classList.add("correctBtn");
-  } else {
-    feedbackDiv.innerHTML = `
-      <p style="color:red;">
-        Incorrect! The correct answer is: <b>${q.answers[correct]}</b><br>
-        <i>${q.explanation}</i>
-      </p>
-    `;
-    buttonElement.classList.add("wrongBtn");
-  }
-
-  nextBtn.style.display = "inline-block";
-}
-
-function nextQuestion() {
-  questionIndex++;
-
-  if (questionIndex < questions.length) {
     showQuestion();
-  } else {
-    quizDiv.innerHTML = "";
-    nextBtn.style.display = "none";
-    feedbackDiv.innerHTML = "<b>You finished the quiz! 🔥</b>";
-  }
-}
-
-updateScore();
-showQuestion();
-</script>
+  </script>
 
 </body>
 </html>
+
